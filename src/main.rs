@@ -4,6 +4,9 @@ use anyhow::{Context, Result};
 enum StackOperation {
     Push,
     Add,
+    Sub,
+    Mul,
+    Div,
 }
 
 #[derive(Debug, Clone)]
@@ -29,6 +32,21 @@ fn execute (instructions: Vec<StackInstruction>, stack_values: Vec<i32>) -> Resu
                 let right = stack.pop().context("stack is empty")?;
                 stack.push(right + left);
             },
+            StackInstruction::Operation(StackOperation::Sub) => {
+                let left = stack.pop().context("stack is empty")?;
+                let right = stack.pop().context("stack is empty")?;
+                stack.push(right - left);
+            },
+            StackInstruction::Operation(StackOperation::Mul) => {
+                let left = stack.pop().context("stack is empty")?;
+                let right = stack.pop().context("stack is empty")?;
+                stack.push(right * left);
+            },
+            StackInstruction::Operation(StackOperation::Div) => {
+                let left = stack.pop().context("stack is empty")?;
+                let right = stack.pop().context("stack is empty")?;
+                stack.push(right / left);
+            },
             StackInstruction::Data(_) => {
                 anyhow::bail!("expected a operation value")
             }
@@ -44,6 +62,20 @@ fn main() -> Result<()> {
         StackInstruction::Operation(StackOperation::Add),
     ], vec![1])?;
     println!("{}", res);
+
+    let res2 = execute(vec![
+        StackInstruction::Operation(StackOperation::Push),
+        StackInstruction::Data(5),
+        StackInstruction::Operation(StackOperation::Push),
+        StackInstruction::Data(2),
+        StackInstruction::Operation(StackOperation::Sub),
+        StackInstruction::Operation(StackOperation::Mul),
+        StackInstruction::Operation(StackOperation::Push),
+        StackInstruction::Data(4),
+        StackInstruction::Operation(StackOperation::Div),
+    ], vec![2])?;
+    println!("{}", res2);
+    
     Ok(())
 }
 
