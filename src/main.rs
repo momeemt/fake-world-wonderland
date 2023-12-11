@@ -13,35 +13,28 @@ enum StackInstruction {
 }
 
 fn execute (instructions: Vec<StackInstruction>, stack_values: Vec<i32>) -> Result<i32> {
-    let mut instructions = instructions.to_vec();
-    instructions.reverse();
+    let mut instructions = instructions.into_iter().rev().collect::<Vec<_>>();
     let mut stack = stack_values.to_vec();
-    while instructions.len() > 0 {
-        let code = instructions.pop().context("stack is empty")?;
-        match code {
-            StackInstruction::Operation(op) => {
-                match op {
-                    StackOperation::Push => {
-                        let operand = match instructions.pop().context("stack is empty")? {
-                            StackInstruction::Data(value) => value,
-                            _ => anyhow::bail!("expected a data value"),
-                        };
-                        stack.push(operand);
-                    },
-                    StackOperation::Add => {
-                        let left = stack.pop().context("stack is empty")?;
-                        let right = stack.pop().context("stack is empty")?;
-                        stack.push(right + left);
-                    }
-                }
+    while let Some(instruction) = instructions.pop() {
+        match instruction {
+            StackInstruction::Operation(StackOperation::Push) => {
+                let operand = match instructions.pop().context("stack is empty")? {
+                    StackInstruction::Data(value) => value,
+                    _ => anyhow::bail!("expected a data value"),
+                };
+                stack.push(operand);
+            },
+            StackInstruction::Operation(StackOperation::Add) => {
+                let left = stack.pop().context("stack is empty")?;
+                let right = stack.pop().context("stack is empty")?;
+                stack.push(right + left);
             },
             StackInstruction::Data(_) => {
                 anyhow::bail!("expected a operation value")
             }
         };
     }
-    let last = stack.last().context("stack is empty")?;
-    Ok(*last)
+    stack.last().copied().context("stack is empty")
 }
 
 fn main() -> Result<()> {
