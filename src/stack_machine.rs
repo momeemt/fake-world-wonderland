@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 
 #[derive(Debug, Clone)]
-enum StackOperation {
+pub enum StackOperation {
     Push,
     Add,
     Sub,
@@ -10,12 +10,12 @@ enum StackOperation {
 }
 
 #[derive(Debug, Clone)]
-enum StackInstruction {
+pub enum StackInstruction {
     Operation(StackOperation),
     Data(i32)
 }
 
-fn execute (instructions: Vec<StackInstruction>, stack_values: Vec<i32>) -> Result<i32> {
+pub fn execute (instructions: Vec<StackInstruction>, stack_values: Vec<i32>) -> Result<i32> {
     let mut instructions = instructions.into_iter().rev().collect::<Vec<_>>();
     let mut stack = stack_values.to_vec();
     while let Some(instruction) = instructions.pop() {
