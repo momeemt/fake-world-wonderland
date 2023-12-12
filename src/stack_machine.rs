@@ -55,27 +55,37 @@ fn execute (instructions: Vec<StackInstruction>, stack_values: Vec<i32>) -> Resu
     stack.last().copied().context("stack is empty")
 }
 
-fn main() -> Result<()> {
-    let res = execute(vec![
-        StackInstruction::Operation(StackOperation::Push),
-        StackInstruction::Data(2),
-        StackInstruction::Operation(StackOperation::Add),
-    ], vec![1])?;
-    println!("{}", res);
+#[cfg(test)]
+mod tests {
+    use anyhow::Result;
+    use crate::stack_machine::{StackInstruction, StackOperation, execute};
 
-    let res2 = execute(vec![
-        StackInstruction::Operation(StackOperation::Push),
-        StackInstruction::Data(5),
-        StackInstruction::Operation(StackOperation::Push),
-        StackInstruction::Data(2),
-        StackInstruction::Operation(StackOperation::Sub),
-        StackInstruction::Operation(StackOperation::Mul),
-        StackInstruction::Operation(StackOperation::Push),
-        StackInstruction::Data(4),
-        StackInstruction::Operation(StackOperation::Div),
-    ], vec![2])?;
-    println!("{}", res2);
-    
-    Ok(())
+    #[test]
+    fn push_and_add() -> Result<()> {
+        let res = execute(vec![
+            StackInstruction::Operation(StackOperation::Push),
+            StackInstruction::Data(2),
+            StackInstruction::Operation(StackOperation::Add),
+        ], vec![1])?;
+        assert_eq!(res, 3);
+        Ok(())
+    }
+
+    #[test]
+    fn push_and_four_ops() -> Result<()> {
+        let res = execute(vec![
+            StackInstruction::Operation(StackOperation::Push),
+            StackInstruction::Data(5),
+            StackInstruction::Operation(StackOperation::Push),
+            StackInstruction::Data(2),
+            StackInstruction::Operation(StackOperation::Sub),
+            StackInstruction::Operation(StackOperation::Mul),
+            StackInstruction::Operation(StackOperation::Push),
+            StackInstruction::Data(4),
+            StackInstruction::Operation(StackOperation::Div),
+        ], vec![2])?;
+        assert_eq!(res, 1);
+        Ok(())
+    }
 }
 
