@@ -1,4 +1,6 @@
 # fake-world-wonderland
+[![fake-world-wonderland](http://img.youtube.com/vi/z3sWoyFHFRs/0.jpg)](https://www.youtube.com/watch?v=z3sWoyFHFRs)
+
 GB30504 プログラム言語処理・GB20401 オートマトンと形式言語の2つの授業で扱われた内容のRust実装。実装内容が正確であることを保証しません。
 
 ## TODO
@@ -14,8 +16,5 @@ GB30504 プログラム言語処理・GB20401 オートマトンと形式言語�
 - 未分類
   - 文脈自由文法、プッシュダウンオートマトン、CFG/DCFG、チューリング機械（オートマトン）
 
-<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4BecKiTQpgcM7JP4zsCcUU?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-
 ## Author
 - Mutsuha Asada
-
