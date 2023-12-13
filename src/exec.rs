@@ -64,7 +64,14 @@ pub fn execute(stmt: Statement, env: Environment) -> Result<Environment> {
             let value = evaluate(*expr, env.clone())?;
             let mut current_env = env.clone();
             current_env.insert(name, value);
-            return Ok(current_env);
+            Ok(current_env)
+        },
+        Statement::Sequence { stmts } => {
+            let mut current_env = env.clone();
+            for stmt in stmts {
+                current_env = execute(*stmt, current_env)?;
+            }
+            Ok(current_env)
         },
         _ => anyhow::bail!("Unknown statement: {:?}", stmt)
     }
@@ -100,6 +107,50 @@ mod tests {
         };
         let res_env = execute(stmt, env)?;
        
+        assert_eq!(expect_env, res_env);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_statement2() -> Result<()> {
+        let mut expect_env = HashMap::new();
+        expect_env.insert(String::from("i"), Expression::Int { value: 0 });
+        expect_env.insert(String::from("sum"), Expression::Int { value: 55 });
+
+        let stmt = Statement::Sequence { stmts: vec![
+            Box::new(Statement::Assign {
+                name: String::from("i"),
+                expr: Box::new(Expression::Int { value: 10 }),
+            }),
+            Box::new(Statement::Assign {
+                name: String::from("sum"),
+                expr: Box::new(Expression::Int { value: 0 }),
+            }),
+            Box::new(Statement::While {
+                cond: Box::new(Expression::Var { name: String::from("i") }),
+                stmt: Box::new(Statement::Sequence { stmts: vec![
+                    Box::new(Statement::Assign {
+                        name: String::from("sum"),
+                        expr: Box::new(Expression::BinExp {
+                            op: String::from("+"),
+                            lhs: Box::new(Expression::Var { name: String::from("sum") }),
+                            rhs: Box::new(Expression::Var { name: String::from("i") }),
+                        }),
+                    }),
+                    Box::new(Statement::Assign {
+                        name: String::from("i"),
+                        expr: Box::new(Expression::BinExp {
+                            op: String::from("-"),
+                            lhs: Box::new(Expression::Var { name: String::from("i") }),
+                            rhs: Box::new(Expression::Int { value: 1 }),
+                        })
+                    })
+                ]})
+            })
+        ]};
+        let res_env = execute(stmt, HashMap::new())?;
+
         assert_eq!(expect_env, res_env);
 
         Ok(())
