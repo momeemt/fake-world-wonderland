@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     BinExp {
         op: String,
@@ -17,36 +17,27 @@ pub enum Expression {
     },
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
-    If(IfStatement),
-    While(WhileStatement),
-    Assign(AssignStatement),
-    Sequence(SequenceStatement),
-    FuncDef(FunctionDefinition),
-}
-
-pub struct IfStatement {
-    pub cond: Box<Expression>,
-    pub then: Box<Statement>,
-    pub els: Box<Statement>,
-}
-
-pub struct WhileStatement {
-    pub cond: Box<Expression>,
-    pub stmt: Box<Statement>,
-}
-
-pub struct AssignStatement {
-    pub variable_name: String,
-    pub expr: Box<Expression>,
-}
-
-pub struct SequenceStatement {
-    pub stmts: Vec<Box<Statement>>,
-}
-
-pub struct FunctionDefinition {
-    pub params: Vec<String>,
-    pub body: Box<Statement>,
+    If {
+        cond: Box<Expression>,
+        then: Box<Statement>,
+        els: Box<Statement>,
+    },
+    While {
+        cond: Box<Expression>,
+        stmt: Box<Statement>,
+    },
+    Assign {
+        name: String,
+        expr: Box<Expression>,
+    },
+    Sequence {
+        stmts: Vec<Box<Statement>>,
+    },
+    FuncDef {
+        params: Vec<String>,
+        body: Box<Statement>,
+    }
 }
 
