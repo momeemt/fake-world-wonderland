@@ -9,7 +9,7 @@ pub enum Expression {
         value: i32,
     },
     Var {
-        name: String
+        name: String,
     },
     Call {
         name: String,
@@ -38,6 +38,5 @@ pub enum Statement {
     FuncDef {
         params: Vec<String>,
         body: Box<Statement>,
-    }
+    },
 }
-

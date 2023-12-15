@@ -18,15 +18,23 @@ pub fn eval_const(expr: Expression) -> Result<Expression> {
                 anyhow::bail!("Expected to Expression::Int but {:?}", right);
             };
             match op.as_str() {
-                "+" => Ok(Expression::Int { value: left_value + right_value }),
-                "-" => Ok(Expression::Int { value: left_value - right_value }),
-                "*" => Ok(Expression::Int { value: left_value * right_value }),
-                "/" => Ok(Expression::Int { value: left_value / right_value }),
-                _ => anyhow::bail!("Unknown op: {}", op)
+                "+" => Ok(Expression::Int {
+                    value: left_value + right_value,
+                }),
+                "-" => Ok(Expression::Int {
+                    value: left_value - right_value,
+                }),
+                "*" => Ok(Expression::Int {
+                    value: left_value * right_value,
+                }),
+                "/" => Ok(Expression::Int {
+                    value: left_value / right_value,
+                }),
+                _ => anyhow::bail!("Unknown op: {}", op),
             }
-        },
+        }
         Expression::Int { value } => Ok(Expression::Int { value }),
-        _ => anyhow::bail!("Unknown expression: {:?}", expr)
+        _ => anyhow::bail!("Unknown expression: {:?}", expr),
     }
 }
 
@@ -40,15 +48,18 @@ mod tests {
 
     #[test]
     fn four_arithmetic_ops1() -> Result<()> {
-        let expr = Expression::BinExp { op: "/".to_string(),
-            lhs: Box::new(Expression::BinExp { op: "*".to_string(),
+        let expr = Expression::BinExp {
+            op: "/".to_string(),
+            lhs: Box::new(Expression::BinExp {
+                op: "*".to_string(),
                 lhs: Box::new(Expression::Int { value: 2 }),
-                rhs: Box::new(Expression::BinExp { op: "-".to_string(),
+                rhs: Box::new(Expression::BinExp {
+                    op: "-".to_string(),
                     lhs: Box::new(Expression::Int { value: 5 }),
                     rhs: Box::new(Expression::Int { value: 2 }),
-                })
+                }),
             }),
-            rhs: Box::new(Expression::Int { value: 4 })
+            rhs: Box::new(Expression::Int { value: 4 }),
         };
         let res = eval_const(expr)?;
         if let Expression::Int { value } = res {
