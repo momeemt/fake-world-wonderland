@@ -101,7 +101,6 @@ pub fn evaluate(
         Expression::Call { name, args } => {
             exec_fun(&name, &evaluate_list(args, env, func_env)?, func_env)
         }
-        _ => anyhow::bail!("Unknown expression: {:?}", expr),
     }
 }
 
