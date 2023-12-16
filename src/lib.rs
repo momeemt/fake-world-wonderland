@@ -5,3 +5,5 @@ pub mod func_exec_cbn;
 pub mod func_exec_cbv;
 pub mod stack_machine;
 pub mod tree_machine;
+pub mod tokens;
+pub mod scanner;
