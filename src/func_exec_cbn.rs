@@ -36,11 +36,22 @@ pub fn evaluate(
     }
 
     fn eval_thunk(thunk: &Thunk) -> Result<Expression> {
-        evaluate(thunk.expr.clone(), thunk.env.clone(), thunk.func_env.clone())
+        evaluate(
+            thunk.expr.clone(),
+            thunk.env.clone(),
+            thunk.func_env.clone(),
+        )
     }
 
-    fn exec_fun(func_name: &str, args: Vec<Thunk>, func_env: &Box<FunctionEnvironment>) -> Result<Expression> {
-        fn build_environment_from_args(params: &Vec<String>, args: Vec<Thunk>) -> Result<Environment> {
+    fn exec_fun(
+        func_name: &str,
+        args: Vec<Thunk>,
+        func_env: &Box<FunctionEnvironment>,
+    ) -> Result<Expression> {
+        fn build_environment_from_args(
+            params: &Vec<String>,
+            args: Vec<Thunk>,
+        ) -> Result<Environment> {
             if params.len() != args.len() {
                 anyhow::bail!("Wrong number of args: {:?} for {:?}", args, params);
             }
@@ -50,21 +61,40 @@ pub fn evaluate(
             }
             Ok(env)
         }
-        let stmt = func_env.get(func_name).ok_or_else(|| anyhow::anyhow!("Unknown function: {}", func_name))?;
+        let stmt = func_env
+            .get(func_name)
+            .ok_or_else(|| anyhow::anyhow!("Unknown function: {}", func_name))?;
         let (params, body) = match stmt {
             Statement::FuncDef { params, body } => (params.clone(), body.clone()),
             _ => anyhow::bail!("Expected to Statement::FuncDef {:?}", stmt),
-        }; 
+        };
         let mut env = build_environment_from_args(&params, args)?;
         let binding = Box::new(env.clone());
-        env.insert(String::from("return"), Thunk { expr: Box::new(Expression::Int { value: 0 }), env: binding, func_env: func_env.clone() });
+        env.insert(
+            String::from("return"),
+            Thunk {
+                expr: Box::new(Expression::Int { value: 0 }),
+                env: binding,
+                func_env: func_env.clone(),
+            },
+        );
         let _ = execute(body, Box::new(env.clone()), func_env.clone())?;
-        Ok(eval_thunk(env.get("return").ok_or_else(|| anyhow::anyhow!("Expected to return value"))?)?)
+        Ok(eval_thunk(env.get("return").ok_or_else(|| {
+            anyhow::anyhow!("Expected to return value")
+        })?)?)
     }
 
     match *expr {
-        Expression::Var { ref name } => Ok(eval_thunk(env.get(name).ok_or_else(|| anyhow::anyhow!("Unknown variable: {}", name))?)?),
-        Expression::BinExp { ref op, ref lhs, ref rhs } => {
+        Expression::Var { ref name } => {
+            Ok(eval_thunk(env.get(name).ok_or_else(|| {
+                anyhow::anyhow!("Unknown variable: {}", name)
+            })?)?)
+        }
+        Expression::BinExp {
+            ref op,
+            ref lhs,
+            ref rhs,
+        } => {
             let left = evaluate(lhs.clone(), env.clone(), func_env.clone())?;
             let right = evaluate(rhs.clone(), env.clone(), func_env.clone())?;
             let left_value = if let Expression::Int { value } = left {
@@ -128,7 +158,9 @@ pub fn execute(
         }
         Statement::While { cond, stmt } => {
             let mut current_env = env.clone();
-            while let Expression::Int { value } = evaluate(cond.clone(), current_env.clone(), func_env.clone())? {
+            while let Expression::Int { value } =
+                evaluate(cond.clone(), current_env.clone(), func_env.clone())?
+            {
                 if value == 0 {
                     break;
                 }
@@ -139,7 +171,14 @@ pub fn execute(
         Statement::Assign { name, expr } => {
             let mut env = env.clone();
             let expr = evaluate(expr, env.clone(), func_env.clone())?;
-            env.insert(name.to_string(), Thunk { expr: Box::new(expr), env: env.clone(), func_env });
+            env.insert(
+                name.to_string(),
+                Thunk {
+                    expr: Box::new(expr),
+                    env: env.clone(),
+                    func_env,
+                },
+            );
             Ok(env)
         }
         Statement::Sequence { stmts } => {
