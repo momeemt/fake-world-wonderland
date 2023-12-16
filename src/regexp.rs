@@ -30,7 +30,7 @@ impl RegExp {
         }
 
         if next.is_empty() {
-            Some(acc) 
+            Some(acc)
         } else {
             match (acc, next) {
                 (acc, next) => {
@@ -53,17 +53,17 @@ impl RegExp {
                 if pos < input.len() && input.chars().nth(pos)? == *c {
                     return Some(HashSet::from([pos + 1]));
                 }
-            },
+            }
             RegExp::Any => {
                 if pos < input.len() {
                     return Some(HashSet::from([pos + 1]));
                 }
-            },
+            }
             RegExp::Empty => {
                 if pos <= input.len() {
                     return Some(HashSet::from([pos]));
                 }
-            },
+            }
             RegExp::Seq { left, right } => {
                 let mut result = HashSet::new();
                 for pos_left in left._match(input, pos)? {
@@ -72,7 +72,7 @@ impl RegExp {
                     }
                 }
                 return Some(result);
-            },
+            }
             RegExp::Or { left, right } => {
                 let left_result = left._match(input, pos);
                 let right_result = right._match(input, pos);
@@ -86,26 +86,26 @@ impl RegExp {
                             result.insert(pos);
                         }
                         return Some(result);
-                    },
+                    }
                     (Some(left_result), None) => {
                         let mut result = HashSet::new();
                         for pos in left_result {
                             result.insert(pos);
                         }
                         return Some(result);
-                    },
+                    }
                     (None, Some(right_result)) => {
                         let mut result = HashSet::new();
                         for pos in right_result {
                             result.insert(pos);
                         }
                         return Some(result);
-                    },
+                    }
                     (None, None) => {
                         return None;
                     }
                 }
-            },
+            }
             RegExp::Repeat(reg) => {
                 let initial_pos = HashSet::from([pos]);
                 return reg.repeat_match(input, pos, initial_pos);
@@ -167,19 +167,28 @@ mod tests {
     #[test]
     fn test_regexp_repeat1() {
         let regexp = RegExp::Repeat(Box::new(RegExp::Char('a')));
-        assert_eq!(regexp._match("a", 0), Some([0, 1].iter().copied().collect()));
+        assert_eq!(
+            regexp._match("a", 0),
+            Some([0, 1].iter().copied().collect())
+        );
     }
 
     #[test]
     fn test_regexp_repeat2() {
         let regexp = RegExp::Repeat(Box::new(RegExp::Char('a')));
-        assert_eq!(regexp._match("aa", 0), Some([0, 1, 2].iter().copied().collect()));
+        assert_eq!(
+            regexp._match("aa", 0),
+            Some([0, 1, 2].iter().copied().collect())
+        );
     }
 
     #[test]
     fn test_regexp_repeat3() {
         let regexp = RegExp::Repeat(Box::new(RegExp::Char('a')));
-        assert_eq!(regexp._match("aaa", 0), Some([0, 1, 2, 3].iter().copied().collect()));
+        assert_eq!(
+            regexp._match("aaa", 0),
+            Some([0, 1, 2, 3].iter().copied().collect())
+        );
     }
 
     #[test]
