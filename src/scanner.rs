@@ -24,7 +24,10 @@ impl Iterator for TokenIterator {
 
         if let Some(cap) = pattern.captures(&self.input.clone()) {
             let matched_length = cap.get(0).unwrap().end();
-            self.input = self.input[matched_length..].to_string().trim_start().to_string();
+            self.input = self.input[matched_length..]
+                .to_string()
+                .trim_start()
+                .to_string();
 
             if let Some(s) = cap.get(4).map(|m| m.as_str()) {
                 return Some(Token::KeyWord(s.to_string()));
@@ -59,8 +62,8 @@ mod tests {
               i := i - 1
         }
         ";
-        
-        let mut iter = tokenize(sample.to_string()); 
+
+        let mut iter = tokenize(sample.to_string());
         let mut last = None;
         while let Some(token) = iter.next() {
             last = Some(token);
@@ -78,8 +81,8 @@ mod tests {
               i := i - 1
         }
         ";
-        
-        let mut iter = tokenize(sample.to_string()); 
+
+        let mut iter = tokenize(sample.to_string());
         let mut last = None;
         let mut second_to_last = None;
         while let Some(token) = iter.next() {
