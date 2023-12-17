@@ -1,6 +1,7 @@
 pub mod ast;
 pub mod eval_const;
 pub mod exec;
+pub mod fsa;
 pub mod func_exec_cbn;
 pub mod func_exec_cbv;
 pub mod regexp;
@@ -8,4 +9,3 @@ pub mod scanner;
 pub mod stack_machine;
 pub mod tokens;
 pub mod tree_machine;
-pub mod fsa;

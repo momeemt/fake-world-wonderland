@@ -60,7 +60,7 @@ impl NFA {
     pub fn is_final(&self, states: HashSet<State>) -> bool {
         for state in states {
             if self.finals.contains(&state) {
-                return true
+                return true;
             }
         }
         false
@@ -75,11 +75,14 @@ impl NFA {
     }
 
     pub fn to_dfa(&self) -> DFA {
-        let mut new_states: Vec<HashSet<State>> = vec![self.get_epsilon_closure(HashSet::from([self.start]))];
+        let mut new_states: Vec<HashSet<State>> =
+            vec![self.get_epsilon_closure(HashSet::from([self.start]))];
         let mut trans_dict: DFATransition = HashMap::new();
         let mut src = 0;
 
-        let alphabet: HashSet<char> = self.transition.values()
+        let alphabet: HashSet<char> = self
+            .transition
+            .values()
             .flat_map(|trans| trans.keys().cloned())
             .collect();
 
@@ -104,9 +107,16 @@ impl NFA {
             src += 1;
         }
 
-        let finals: HashSet<State> = new_states.iter()
+        let finals: HashSet<State> = new_states
+            .iter()
             .enumerate()
-            .filter_map(|(i, states)| if self.is_final(states.clone()) { Some(i as State) } else { None })
+            .filter_map(|(i, states)| {
+                if self.is_final(states.clone()) {
+                    Some(i as State)
+                } else {
+                    None
+                }
+            })
             .collect();
 
         DFA {
@@ -121,7 +131,11 @@ impl DFA {
     pub fn try_accept(&self, code: &str) -> bool {
         let mut current = self.start;
         for ch in code.chars() {
-            if let Some(next_state) = self.transition.get(&current).and_then(|trans| trans.get(&ch)) {
+            if let Some(next_state) = self
+                .transition
+                .get(&current)
+                .and_then(|trans| trans.get(&ch))
+            {
                 current = *next_state;
             } else {
                 return false;
@@ -135,27 +149,30 @@ impl DFA {
 mod tests {
     use std::collections::{HashMap, HashSet};
 
-    use super::{NFA, DFA};
+    use super::{DFA, NFA};
 
     #[test]
     fn test_nfa1() {
         let nfa = NFA {
-            transition: vec![
-                (0, 'a', 1),
-                (1, 'b', 2),
-                (2, 'c', 3),
-            ].into_iter().fold(HashMap::new(), |mut acc, (state, ch, next_state)| {
-                acc.entry(state).or_insert_with(HashMap::new).entry(ch).or_insert_with(HashSet::new).insert(next_state);
-                acc
-            }),
-            epsilon_transition: vec![
-                (0, 1),
-                (1, 2),
-                (2, 3),
-            ].into_iter().fold(HashMap::new(), |mut acc, (state, next_state)| {
-                acc.entry(state).or_insert_with(HashSet::new).insert(next_state);
-                acc
-            }),            
+            transition: vec![(0, 'a', 1), (1, 'b', 2), (2, 'c', 3)]
+                .into_iter()
+                .fold(HashMap::new(), |mut acc, (state, ch, next_state)| {
+                    acc.entry(state)
+                        .or_insert_with(HashMap::new)
+                        .entry(ch)
+                        .or_insert_with(HashSet::new)
+                        .insert(next_state);
+                    acc
+                }),
+            epsilon_transition: vec![(0, 1), (1, 2), (2, 3)].into_iter().fold(
+                HashMap::new(),
+                |mut acc, (state, next_state)| {
+                    acc.entry(state)
+                        .or_insert_with(HashSet::new)
+                        .insert(next_state);
+                    acc
+                },
+            ),
             start: 0,
             finals: vec![3].into_iter().collect(),
         };
@@ -174,18 +191,25 @@ mod tests {
                 (3, 'd', 4),
                 (4, 'e', 5),
                 (5, 'f', 6),
-            ].into_iter().fold(HashMap::new(), |mut acc, (state, ch, next_state)| {
-                acc.entry(state).or_insert_with(HashMap::new).entry(ch).or_insert_with(HashSet::new).insert(next_state);
+            ]
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, (state, ch, next_state)| {
+                acc.entry(state)
+                    .or_insert_with(HashMap::new)
+                    .entry(ch)
+                    .or_insert_with(HashSet::new)
+                    .insert(next_state);
                 acc
             }),
-            epsilon_transition: vec![
-                (0, 1),
-                (2, 3),
-                (5, 6),
-            ].into_iter().fold(HashMap::new(), |mut acc, (state, next_state)| {
-                acc.entry(state).or_insert_with(HashSet::new).insert(next_state);
-                acc
-            }),            
+            epsilon_transition: vec![(0, 1), (2, 3), (5, 6)].into_iter().fold(
+                HashMap::new(),
+                |mut acc, (state, next_state)| {
+                    acc.entry(state)
+                        .or_insert_with(HashSet::new)
+                        .insert(next_state);
+                    acc
+                },
+            ),
             start: 0,
             finals: vec![6].into_iter().collect(),
         };
@@ -203,17 +227,25 @@ mod tests {
                 (1, 'b', 3),
                 (2, 'b', 3),
                 (3, 'c', 4),
-            ].into_iter().fold(HashMap::new(), |mut acc, (state, ch, next_state)| {
-                acc.entry(state).or_insert_with(HashMap::new).entry(ch).or_insert_with(HashSet::new).insert(next_state);
+            ]
+            .into_iter()
+            .fold(HashMap::new(), |mut acc, (state, ch, next_state)| {
+                acc.entry(state)
+                    .or_insert_with(HashMap::new)
+                    .entry(ch)
+                    .or_insert_with(HashSet::new)
+                    .insert(next_state);
                 acc
             }),
-            epsilon_transition: vec![
-                (0, 1),
-                (0, 2),
-            ].into_iter().fold(HashMap::new(), |mut acc, (state, next_state)| {
-                acc.entry(state).or_insert_with(HashSet::new).insert(next_state);
-                acc
-            }),            
+            epsilon_transition: vec![(0, 1), (0, 2)].into_iter().fold(
+                HashMap::new(),
+                |mut acc, (state, next_state)| {
+                    acc.entry(state)
+                        .or_insert_with(HashSet::new)
+                        .insert(next_state);
+                    acc
+                },
+            ),
             start: 0,
             finals: vec![4].into_iter().collect(),
         };
@@ -226,14 +258,15 @@ mod tests {
     #[test]
     fn test_dfa1() {
         let dfa = DFA {
-            transition: vec![
-                (0, 'a', 1),
-                (1, 'b', 2),
-                (2, 'c', 3),
-            ].into_iter().fold(HashMap::new(), |mut acc, (state, ch, next_state)| {
-                acc.entry(state).or_insert_with(HashMap::new).entry(ch).or_insert(next_state);
-                acc
-            }),
+            transition: vec![(0, 'a', 1), (1, 'b', 2), (2, 'c', 3)]
+                .into_iter()
+                .fold(HashMap::new(), |mut acc, (state, ch, next_state)| {
+                    acc.entry(state)
+                        .or_insert_with(HashMap::new)
+                        .entry(ch)
+                        .or_insert(next_state);
+                    acc
+                }),
             start: 0,
             finals: vec![3].into_iter().collect(),
         };
