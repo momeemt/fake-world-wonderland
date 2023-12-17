@@ -1,10 +1,11 @@
 use std::collections::{HashMap, HashSet};
 
-type State = i32;
-type NFATransition = HashMap<State, HashMap<char, HashSet<State>>>;
-type EpsilonTransition = HashMap<State, HashSet<State>>;
-type DFATransition = HashMap<State, HashMap<char, State>>;
+pub type State = i32;
+pub type NFATransition = HashMap<State, HashMap<char, HashSet<State>>>;
+pub type EpsilonTransition = HashMap<State, HashSet<State>>;
+pub type DFATransition = HashMap<State, HashMap<char, State>>;
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct NFA {
     pub transition: NFATransition,
     pub epsilon_transition: EpsilonTransition,
@@ -12,6 +13,7 @@ pub struct NFA {
     pub finals: HashSet<State>,
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct DFA {
     pub transition: DFATransition,
     pub start: State,
