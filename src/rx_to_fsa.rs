@@ -1,6 +1,9 @@
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashMap, HashSet};
 
-use crate::{fsa::{State, NFATransition, EpsilonTransition, NFA}, regexp::RegExp};
+use crate::{
+    fsa::{EpsilonTransition, NFATransition, State, NFA},
+    regexp::RegExp,
+};
 
 pub struct NFAConstructor {
     state_counter: State,
@@ -62,7 +65,7 @@ impl NFAConstructor {
                     start,
                     finals: HashSet::from([end]),
                 })
-            },
+            }
             RegExp::Any => {
                 let start = self.new_state();
                 let end = self.new_state();
@@ -78,7 +81,7 @@ impl NFAConstructor {
                     start,
                     finals: HashSet::from([end]),
                 })
-            },
+            }
             RegExp::Empty => {
                 let start = self.new_state();
                 let finals = HashSet::from([start]);
@@ -88,14 +91,14 @@ impl NFAConstructor {
                     start,
                     finals,
                 })
-            },
+            }
             RegExp::Seq { left, right } => {
                 let l_nfa = self.rx_to_nfa(left, alphabet)?;
                 let r_nfa = self.rx_to_nfa(right, alphabet)?;
                 let l_end = self.end_state(&l_nfa)?;
                 let eps_trans = self.eps_union(
-                    &l_nfa.epsilon_transition, 
-                    &HashMap::from([(l_end, HashSet::from([r_nfa.start]))])
+                    &l_nfa.epsilon_transition,
+                    &HashMap::from([(l_end, HashSet::from([r_nfa.start]))]),
                 );
                 Some(NFA {
                     transition: self.nfa_trans_union(&l_nfa.transition, &r_nfa.transition),
@@ -103,7 +106,7 @@ impl NFAConstructor {
                     start: l_nfa.start,
                     finals: r_nfa.finals,
                 })
-            },
+            }
             RegExp::Or { left, right } => {
                 let start = self.new_state();
                 let l_nfa = self.rx_to_nfa(left, alphabet)?;
@@ -116,11 +119,14 @@ impl NFAConstructor {
                 ]);
                 Some(NFA {
                     transition: self.nfa_trans_union(&l_nfa.transition, &r_nfa.transition),
-                    epsilon_transition: self.eps_union(&eps_trans, &self.eps_union(&l_nfa.epsilon_transition, &r_nfa.epsilon_transition)),
+                    epsilon_transition: self.eps_union(
+                        &eps_trans,
+                        &self.eps_union(&l_nfa.epsilon_transition, &r_nfa.epsilon_transition),
+                    ),
                     start,
                     finals: HashSet::from([end]),
                 })
-            },
+            }
             RegExp::Repeat(reg) => {
                 let start = self.new_state();
                 let reg_nfa = self.rx_to_nfa(reg, alphabet)?;
@@ -136,14 +142,14 @@ impl NFAConstructor {
                     start,
                     finals: HashSet::from([end]),
                 })
-            },
+            }
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{regexp::RegExp, rx_to_fsa::NFAConstructor, fsa::State};
+    use crate::{fsa::State, regexp::RegExp, rx_to_fsa::NFAConstructor};
     use std::collections::HashSet;
 
     #[test]
@@ -159,10 +165,19 @@ mod tests {
             right: Box::new(RegExp::Char('b')),
         };
 
-        let nfa = nfa_constructor.rx_to_nfa(&rx, &alphabet).expect("Failed to convert RegExp to NFA");
+        let nfa = nfa_constructor
+            .rx_to_nfa(&rx, &alphabet)
+            .expect("Failed to convert RegExp to NFA");
         let dfa = nfa.to_dfa();
-        let dfa_states: HashSet<State> = dfa.transition.keys().cloned()
-            .chain(dfa.transition.values().flat_map(|trans| trans.values().cloned()))
+        let dfa_states: HashSet<State> = dfa
+            .transition
+            .keys()
+            .cloned()
+            .chain(
+                dfa.transition
+                    .values()
+                    .flat_map(|trans| trans.values().cloned()),
+            )
             .collect();
         assert_eq!(dfa_states.len(), 4, "DFA should have 4 states");
     }
