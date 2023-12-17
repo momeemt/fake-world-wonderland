@@ -8,3 +8,4 @@ pub mod scanner;
 pub mod stack_machine;
 pub mod tokens;
 pub mod tree_machine;
+pub mod fsa;
